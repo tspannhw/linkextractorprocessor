@@ -88,6 +88,10 @@ public class MyProcessor extends AbstractProcessor {
         if ( flowFile == null ) {
             return;
         }
-	System.out.println("Flow");
+        String url = flowFile.getAttribute("url");
+        SoupService soupService = new SoupService();
+        List<PrintableLink> value = soupService.extract(url,null);
+        
+        System.out.println("Flow");
     }
 }

@@ -16,25 +16,38 @@
  */
 package com.dataflowdeveloper.processors.process;
 
-import org.apache.nifi.components.PropertyDescriptor;
-import org.apache.nifi.components.PropertyValue;
-import org.apache.nifi.flowfile.FlowFile;
-import org.apache.nifi.processor.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.nifi.annotation.behavior.ReadsAttribute;
 import org.apache.nifi.annotation.behavior.ReadsAttributes;
 import org.apache.nifi.annotation.behavior.WritesAttribute;
 import org.apache.nifi.annotation.behavior.WritesAttributes;
-import org.apache.nifi.annotation.lifecycle.OnScheduled;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.SeeAlso;
 import org.apache.nifi.annotation.documentation.Tags;
+import org.apache.nifi.annotation.lifecycle.OnScheduled;
+import org.apache.nifi.components.PropertyDescriptor;
+import org.apache.nifi.flowfile.FlowFile;
+import org.apache.nifi.processor.AbstractProcessor;
+import org.apache.nifi.processor.ProcessContext;
+import org.apache.nifi.processor.ProcessSession;
+import org.apache.nifi.processor.ProcessorInitializationContext;
+import org.apache.nifi.processor.Relationship;
 import org.apache.nifi.processor.exception.ProcessException;
 import org.apache.nifi.processor.util.StandardValidators;
 
-import java.util.*;
+import com.dataflowdeveloper.PrintableLink;
+import com.dataflowdeveloper.SoupService;
+import com.google.gson.Gson;
 
-@Tags({"example"})
-@CapabilityDescription("Provide a description")
+@Tags({"linkextractor"})
+@CapabilityDescription("Extract links from a URL, parses HTML.")
 @SeeAlso({})
 @ReadsAttributes({@ReadsAttribute(attribute="", description="")})
 @WritesAttributes({@WritesAttribute(attribute="", description="")})
@@ -49,7 +62,7 @@ public class MyProcessor extends AbstractProcessor {
 
     public static final Relationship MY_RELATIONSHIP = new Relationship.Builder()
             .name("my_relationship")
-            .description("Example relationship")
+            .description("Link Extracotr")
             .build();
 
     private List<PropertyDescriptor> descriptors;
@@ -90,8 +103,28 @@ public class MyProcessor extends AbstractProcessor {
         }
         String url = flowFile.getAttribute("url");
         SoupService soupService = new SoupService();
-        List<PrintableLink> value = soupService.extract(url,null);
-        
-        System.out.println("Flow");
+        List<PrintableLink> value = null;
+        String outputJSON = null;
+        try {
+			value = soupService.extract(url,null);
+			
+			if ( value == null) {
+				return;
+			}
+			System.out.println("Value:" + value.size());
+			
+			 Gson gson = new Gson();
+			 outputJSON = gson.toJson(value);		        
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
+		final Map<String, String> attributes = new HashMap<>();		
+		attributes.put("links", outputJSON);
+		//write out attributes to Flow file
+		flowFile = session.putAllAttributes(flowFile, attributes);
+		
+		session.transfer(flowFile, MY_RELATIONSHIP);
     }
 }

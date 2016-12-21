@@ -44,7 +44,6 @@ public class LinkProcessorTest {
 		try {
 			testRunner.enqueue(new FileInputStream(new File("src/test/resources/test.csv")));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

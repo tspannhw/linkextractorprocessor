@@ -107,13 +107,15 @@ public class LinkProcessor extends AbstractProcessor {
     public void onTrigger(final ProcessContext context, final ProcessSession session) throws ProcessException {
         FlowFile flowFile = session.get();
         if ( flowFile == null ) {
-            return;
+        	flowFile = session.create();
         }
+         
         String url = flowFile.getAttribute(ATTRIBUTE_INPUT_NAME);
         String url2 = context.getProperty(ATTRIBUTE_INPUT_NAME).getValue();
 
-        if ( url == null) {
+        if ( url == null) {   
         	url = url2;
+        	getLogger().info("URL Sent:" + url);
         }
         SoupService soupService = new SoupService();
         List<PrintableLink> value = null;

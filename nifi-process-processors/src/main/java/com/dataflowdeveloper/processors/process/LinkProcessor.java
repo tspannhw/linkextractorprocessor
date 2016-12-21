@@ -141,7 +141,7 @@ public class LinkProcessor extends AbstractProcessor {
 
 		try {
 			//Output Flowfile			
-			flowFile = session.putAttribute(flowFile, ATTRIBUTE_OUTPUT_NAME, outputJSON);
+			//flowFile = session.putAttribute(flowFile, ATTRIBUTE_OUTPUT_NAME, outputJSON);
 
 			flowFile = session.write(flowFile, new OutputStreamCallback() {
 				@Override

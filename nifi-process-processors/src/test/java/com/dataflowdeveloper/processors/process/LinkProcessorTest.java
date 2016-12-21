@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import org.apache.nifi.provenance.ProvenanceEventRecord;
 import org.apache.nifi.util.MockFlowFile;
 import org.apache.nifi.util.TestRunner;
 import org.apache.nifi.util.TestRunners;
@@ -51,14 +50,14 @@ public class LinkProcessorTest {
 		testRunner.assertValid();
 		List<MockFlowFile> successFiles = testRunner.getFlowFilesForRelationship(LinkProcessor.REL_SUCCESS);
 
-		for (ProvenanceEventRecord events : testRunner.getProvenanceEvents()) {
-			System.out.println("Output: " + events.getAttributes().get(LinkProcessor.ATTRIBUTE_OUTPUT_NAME));
-		}
+//		for (ProvenanceEventRecord events : testRunner.getProvenanceEvents()) {
+//			System.out.println("Output: " + events.getAttributes().get(LinkProcessor.ATTRIBUTE_OUTPUT_NAME));
+//		}
 
 		for (MockFlowFile mockFile : successFiles) {
 			try {
 				System.out.println("FILE:" + new String(mockFile.toByteArray(), "UTF-8"));
-				System.out.println("Attribute: " + mockFile.getAttribute(LinkProcessor.ATTRIBUTE_OUTPUT_NAME));
+				//System.out.println("Attribute: " + mockFile.getAttribute(LinkProcessor.ATTRIBUTE_OUTPUT_NAME));
 
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();

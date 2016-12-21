@@ -16,11 +16,14 @@
  */
 package com.dataflowdeveloper.processors.process;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.nifi.annotation.behavior.ReadsAttribute;
 import org.apache.nifi.annotation.behavior.ReadsAttributes;
@@ -38,6 +41,7 @@ import org.apache.nifi.processor.ProcessSession;
 import org.apache.nifi.processor.ProcessorInitializationContext;
 import org.apache.nifi.processor.Relationship;
 import org.apache.nifi.processor.exception.ProcessException;
+import org.apache.nifi.processor.io.OutputStreamCallback;
 import org.apache.nifi.processor.util.StandardValidators;
 
 import com.dataflowdeveloper.PrintableLink;
@@ -109,6 +113,7 @@ public class LinkProcessor extends AbstractProcessor {
         if ( flowFile == null ) {
         	flowFile = session.create();
         }
+        final AtomicReference<String> valueRef = new AtomicReference<>();
          
         String url = flowFile.getAttribute(ATTRIBUTE_INPUT_NAME);
         String url2 = context.getProperty(ATTRIBUTE_INPUT_NAME).getValue();
@@ -128,7 +133,8 @@ public class LinkProcessor extends AbstractProcessor {
 			}
 			
 			 Gson gson = new Gson();
-			 outputJSON = gson.toJson(value);		        
+			 outputJSON = gson.toJson(value);	
+			 valueRef.set(outputJSON);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -136,6 +142,13 @@ public class LinkProcessor extends AbstractProcessor {
 		try {
 			//Output Flowfile			
 			flowFile = session.putAttribute(flowFile, ATTRIBUTE_OUTPUT_NAME, outputJSON);
+
+			flowFile = session.write(flowFile, new OutputStreamCallback() {
+				@Override
+				public void process(OutputStream out) throws IOException {
+					out.write(valueRef.get().getBytes());
+				}
+		    });
 			
 			session.transfer(flowFile, REL_SUCCESS);
 		} catch (Exception e) {

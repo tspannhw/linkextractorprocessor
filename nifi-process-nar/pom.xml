@@ -22,7 +22,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>nifi-process-nar</artifactId>
+    <artifactId>nifi-linkextractor-nar</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>nar</packaging>
     <properties>
